@@ -1,5 +1,5 @@
 import { describe, it, vi, expect } from 'vitest'
-import { effect, proxyData } from './core/effect'
+import { effect, proxyData } from './core/effect.js'
 
 describe('effect', () => {
   it('happy path', () => {
@@ -62,12 +62,12 @@ describe('effect', () => {
     effect(() => {
       obj.text1
       num1++
-      console.log('effectFn1 run');
+      console.log('effectFn1 run')
     })
     effect(() => {
       obj.text2
       num2++
-      console.log('effectFn2 run');
+      console.log('effectFn2 run')
     })
     expect(num1).toBe(1)
     expect(num2).toBe(1)
@@ -76,7 +76,16 @@ describe('effect', () => {
     obj.text2 = 'hello tdd2'
     expect(num2).toBe(2)
   })
-  it('should 分支切换',()=>{
-    
+  it('should 分支切换', () => {
+    const data = { ok: false, text: 'hello world' }
+    const obj = proxyData(data)
+    let tip = ''
+    const logSpy = vi.spyOn(console, 'log')
+    effect(() => {
+      tip = obj.ok ? obj.text : 'not'
+      console.log('effect run')
+    })
+    obj.text = 'hello vue3'
+    expect(logSpy).toHaveBeenCalledTimes(1)
   })
 })
