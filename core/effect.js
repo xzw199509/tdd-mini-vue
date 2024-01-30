@@ -30,14 +30,13 @@ function track(target, key) {
   }
   // 最后将激活的副作用函数添加到桶中
   deps.add(activeEffect)
-  activeEffect.deps.push(deps)
+  activeEffect.deps.push(deps) // 建立effctfn与响应式对象的关系
 }
-function trigger(target, key) {
+function trigger(target, key) {    
   const depsMap = bucket.get(target)
   if (!depsMap) return true // return true 用于set调用必须返回布尔值
   const effects = depsMap.get(key)
-  // effects && effects.forEach((fn) => fn())
-  const effectsToRun = new Set(effects)
+  const effectsToRun = new Set(effects) // 因为 effect 为Set()类型数据 是为避免 set 与 forEach 使用删除时出无限循环问题 新建一个 set 数据用于循环 
   effectsToRun.forEach((effectFn) => effectFn())
 }
 
