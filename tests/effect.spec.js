@@ -16,6 +16,7 @@ describe('effect', () => {
     effect(() => {
       console.log('effect run', obj.age) // 会打印 2 次
     })
+    expect(logSpy).toHaveBeenCalledTimes(1)
     obj.age = 2
     expect(logSpy).toHaveBeenCalledTimes(2)
     expect(data.age).toBe(2)
@@ -76,7 +77,7 @@ describe('effect', () => {
     obj.text2 = 'hello tdd2'
     expect(num2).toBe(2)
   })
-  it('should 分支切换', () => {
+  it('分支切换', () => {
     const data = { ok: false, text: 'hello world' }
     const obj = proxyData(data)
     let tip = ''
@@ -87,5 +88,8 @@ describe('effect', () => {
     })
     obj.text = 'hello vue3'
     expect(logSpy).toHaveBeenCalledTimes(1)
+    obj.ok = true
+    expect(logSpy).toHaveBeenCalledTimes(2)
   })
+  
 })
