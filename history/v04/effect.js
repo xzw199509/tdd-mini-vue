@@ -98,6 +98,7 @@ function cleanup(effectFn) {
 
 // obj.bar = false
 
+// 测试无限循环
 const data = { foo: 1 }
 const obj = proxyData(data)
 effect(() => obj.foo++)

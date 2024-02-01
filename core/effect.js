@@ -44,13 +44,19 @@ function trigger(target, key) {
       effectsToRun.add(effectFn)
     }
   })
-  effectsToRun.forEach((effectFn) => effectFn())
+  effectsToRun.forEach((effectFn) => {
+    if (effectFn.options.scheduler) {
+      effectFn.options.scheduler(effectFn)
+    } else {
+      effectFn()
+    }
+  })
 }
 
 let activeEffect = null
 // effect 栈
 const effectStack = []
-export function effect(fn) {
+export function effect(fn, options = {}) {
   const effectFn = () => {
     // cleanup 完成清除工作
     cleanup(effectFn)
@@ -63,6 +69,8 @@ export function effect(fn) {
     effectStack.pop()
     activeEffect = effectStack[effectStack.length - 1]
   }
+  // 把options 挂载到effectFn 上
+  effectFn.options = options
   // activeEffect.deps 用来储存所有与该副作用函数相关的依赖集合
   effectFn.deps = []
   effectFn()
