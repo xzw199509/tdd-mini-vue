@@ -89,12 +89,12 @@ function cleanup(effectFn) {
 }
 
 // 定义一个任务队列
-export const jobQueue = new Set()
+const jobQueue = new Set()
 // 使用promise.resolve() 把任务丢到微任务队列中
 const p = Promise.resolve()
 
 let isFlushing = false
-export function flushJob() {
+function flushJob() {
   // 如果队列再刷新，则不处理
   if (isFlushing) return
   isFlushing = true
@@ -105,3 +105,23 @@ export function flushJob() {
     isFlushing = false
   })
 }
+
+
+const data = { foo: 1 }
+const obj = proxyData(data)
+const scheduler = (fn) => {
+  // setTimeout(fn);
+  jobQueue.add(fn)
+  flushJob()
+}
+effect(
+  () => {
+    console.log(obj.foo)
+  },
+  {
+    scheduler,
+  }
+)
+obj.foo++
+obj.foo++
+console.log('结束')

@@ -1,5 +1,5 @@
 import { describe, it, vi, expect } from 'vitest'
-import { effect, proxyData } from './core/effect.js'
+import { effect, proxyData, jobQueue, flushJob } from './core/effect.js'
 
 describe('effect', () => {
   it('happy path', () => {
@@ -124,5 +124,32 @@ describe('effect', () => {
     })
     obj.bar = false
     expect(logSpy).toHaveBeenCalledTimes(3)
+  })
+  it('测试无限循环', () => {
+    const data = { foo: 1 }
+    const obj = proxyData(data)
+    effect(() => obj.foo++)
+    expect(obj.foo).toBe(2)
+  })
+  it('测试过渡状态_未能通过', () => {
+    const data = { foo: 1 }
+    const obj = proxyData(data)
+    const logSpy = vi.spyOn(console, 'log')
+    const scheduler = (fn) => {
+      // setTimeout(fn);
+      jobQueue.add(fn)
+      flushJob()
+    }
+    effect(
+      () => {
+        console.log(obj.foo)
+      },
+      {
+        scheduler,
+      }
+    )
+    obj.foo++
+    obj.foo++
+    expect(logSpy).toHaveBeenCalledTimes(2)
   })
 })
