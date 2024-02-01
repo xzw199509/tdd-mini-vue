@@ -91,7 +91,7 @@ describe('effect', () => {
     obj.ok = true
     expect(logSpy).toHaveBeenCalledTimes(2)
   })
-  it('effect 嵌套', () => {
+  it('effect 嵌套 赋值foo', () => {
     const data = { foo: true, bar: true }
     const obj = proxyData(data)
     let temp1
@@ -106,6 +106,23 @@ describe('effect', () => {
       temp1 = obj.foo
     })
     obj.foo = false
-    expect(logSpy).toHaveBeenCalledTimes(1)
+    expect(logSpy).toHaveBeenCalledTimes(4)
+  })
+  it('effect 嵌套 赋值嵌套中的属性bar', () => {
+    const data = { foo: true, bar: true }
+    const obj = proxyData(data)
+    let temp1
+    let temp2
+    const logSpy = vi.spyOn(console, 'log')
+    effect(() => {
+      console.log('effectFn1 run')
+      effect(() => {
+        console.log('effectFn2 run')
+        temp2 = obj.bar
+      })
+      temp1 = obj.foo
+    })
+    obj.bar = false
+    expect(logSpy).toHaveBeenCalledTimes(3)
   })
 })

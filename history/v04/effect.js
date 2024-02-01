@@ -36,7 +36,7 @@ function trigger(target, key) {
   const depsMap = bucket.get(target)
   if (!depsMap) return true // return true 用于set调用必须返回布尔值
   const effects = depsMap.get(key)
-  if (!effects) return true
+
   const effectsToRun = new Set()
   effects.forEach((effectFn) => {
     // 判断当前 trigger 触发得副作用函数与证再执行得副作用函数是否相同
@@ -79,3 +79,25 @@ function cleanup(effectFn) {
 
   effectFn.deps.length = 0
 }
+// const data = { foo: true, bar: true }
+// const obj = proxyData(data)
+
+// let temp1, temp2
+// effect(() => {
+//   console.log('effectFn1 run')
+//   effect(() => {
+//     console.log('effectFn2 run')
+//     temp2 = obj.bar
+//   })
+//   temp1 = obj.foo
+// })
+
+// obj.foo = false
+
+// console.log("——————————");
+
+// obj.bar = false
+
+const data = { foo: 1 }
+const obj = proxyData(data)
+effect(() => obj.foo++)
