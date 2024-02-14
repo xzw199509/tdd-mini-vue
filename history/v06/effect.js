@@ -94,12 +94,12 @@ function cleanup(effectFn) {
 }
 
 // 定义一个任务队列
-export const jobQueue = new Set()
+const jobQueue = new Set()
 // 使用promise.resolve() 把任务丢到微任务队列中
 const p = Promise.resolve()
 
 let isFlushing = false
-export function flushJob() {
+function flushJob() {
   // 如果队列再刷新，则不处理
   if (isFlushing) return
   isFlushing = true
@@ -110,6 +110,7 @@ export function flushJob() {
     isFlushing = false
   })
 }
+
 export function computed(getter) {
   // 把 getter 作为副作用函数，创建一个 lazy 的 effect
   const effectFn = effect(getter, {
@@ -122,3 +123,23 @@ export function computed(getter) {
   }
   return obj
 }
+
+const data = { foo: 1, bar: 2 }
+const obj = new Proxy(data, {
+  get(target, key) {
+    track(target, key)
+    return target[key]
+  },
+  set(target, key, newVal) {
+    target[key] = newVal
+    trigger(target, key)
+    return true // return true 用于set调用必须返回布尔值
+  },
+})
+const sumRes = computed(() => 
+  obj.foo++
+)
+let value = sumRes.value
+console.log(sumRes.value)
+value = sumRes.value
+console.log(value)
