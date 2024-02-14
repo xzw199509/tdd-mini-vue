@@ -119,7 +119,11 @@ export function computed(getter) {
   const effectFn = effect(getter, {
     lazy: true,
     scheduler() {
-      dirty = true
+      if (!dirty) {
+        dirty = true
+        // 当计算属性依赖的响应式数据变化时，手动调用 trigger 函数响应
+        trigger(obj, 'value')
+      }
     },
   })
   const obj = {
@@ -128,6 +132,8 @@ export function computed(getter) {
         value = effectFn()
         dirty = false
       }
+      // 当读取 value 时，手动调用 track 函数进行追踪
+      track(obj, 'value')
       return value
     },
   }

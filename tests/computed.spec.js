@@ -45,9 +45,20 @@ describe('lazy and computed', () => {
         return obj.foo + obj.bar
       })
       expect(sumRes.value).toBe(3)
-      // 每次读取value 都会执行
       obj.foo++
       expect(sumRes.value).toBe(4)
+    })
+    it('effect 嵌套 computed 返回值的情况', () => {
+      const data = { foo: 1, bar: 2 }
+      const obj = proxyData(data)
+      const logSpy = vi.spyOn(console, 'log')
+      const sumRes = computed(() => obj.foo + obj.bar)
+      effect(()=>{
+        console.log(sumRes.value);
+      })
+      expect(logSpy).toHaveBeenCalledTimes(1)
+      obj.foo++
+      expect(logSpy).toHaveBeenCalledTimes(2)
     })
   })
   
