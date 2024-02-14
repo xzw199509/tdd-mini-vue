@@ -17,13 +17,14 @@ describe('lazy and computed', () => {
     expect(logSpy).toHaveBeenCalledTimes(0)
   })
   describe('computed',()=>{
+    // 能拿到计算结果、2 缓存 3 值改变重新计算
     it('返回函数，自己执行能拿到结果', () => {
       const data = { foo: 1, bar: 2 }
       const obj = proxyData(data)
       const sumRes = computed(() => obj.foo + obj.bar)
       expect(sumRes.value).toBe(3)
     })
-    it('处理每次调用都会重新计算', () => {
+    it('重复获取value不需要重新计算', () => {
       const data = { foo: 1, bar: 2 }
       const obj = proxyData(data)
       const logSpy = vi.spyOn(console, 'log')
@@ -32,10 +33,21 @@ describe('lazy and computed', () => {
         return obj.foo + obj.bar
       })
       expect(sumRes.value).toBe(3)
-      // 
+      // 每次读取value 都会执行
       expect(logSpy).toHaveBeenCalledTimes(1)
       sumRes.value
       expect(logSpy).toHaveBeenCalledTimes(1)
+    })
+    it('值改变是需要重新计算', () => {
+      const data = { foo: 1, bar: 2 }
+      const obj = proxyData(data)
+      const sumRes = computed(() =>{
+        return obj.foo + obj.bar
+      })
+      expect(sumRes.value).toBe(3)
+      // 每次读取value 都会执行
+      obj.foo++
+      expect(sumRes.value).toBe(4)
     })
   })
   

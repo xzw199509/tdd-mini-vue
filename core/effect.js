@@ -111,13 +111,24 @@ export function flushJob() {
   })
 }
 export function computed(getter) {
+  // value 用来缓存上一次计算的值，
+  let value
+  // dirty 标志，用来标记是否需要重新计算，true 为脏需要重新计算
+  let dirty = true
   // 把 getter 作为副作用函数，创建一个 lazy 的 effect
   const effectFn = effect(getter, {
     lazy: true,
+    scheduler() {
+      dirty = true
+    },
   })
   const obj = {
     get value() {
-      return effectFn()
+      if (dirty) {
+        value = effectFn()
+        dirty = false
+      }
+      return value
     },
   }
   return obj
