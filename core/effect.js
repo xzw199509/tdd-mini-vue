@@ -15,7 +15,7 @@ export function proxyData(data) {
   })
 }
 
-function track(target, key) {
+export function track(target, key) {
   if (!activeEffect) return
 
   let depsMap = bucket.get(target)
@@ -32,7 +32,7 @@ function track(target, key) {
   activeEffect.deps.push(deps)
 }
 
-function trigger(target, key) {
+export function trigger(target, key) {
   const depsMap = bucket.get(target)
   if (!depsMap) return true // return true 用于set调用必须返回布尔值
   const effects = depsMap.get(key)
@@ -109,33 +109,4 @@ export function flushJob() {
     // 结束后重置 isFlushing
     isFlushing = false
   })
-}
-export function computed(getter) {
-  // value 用来缓存上一次计算的值，
-  let value
-  // dirty 标志，用来标记是否需要重新计算，true 为脏需要重新计算
-  let dirty = true
-  // 把 getter 作为副作用函数，创建一个 lazy 的 effect
-  const effectFn = effect(getter, {
-    lazy: true,
-    scheduler() {
-      if (!dirty) {
-        dirty = true
-        // 当计算属性依赖的响应式数据变化时，手动调用 trigger 函数响应
-        trigger(obj, 'value')
-      }
-    },
-  })
-  const obj = {
-    get value() {
-      if (dirty) {
-        value = effectFn()
-        dirty = false
-      }
-      // 当读取 value 时，手动调用 track 函数进行追踪
-      track(obj, 'value')
-      return value
-    },
-  }
-  return obj
 }

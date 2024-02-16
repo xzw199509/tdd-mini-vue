@@ -1,5 +1,6 @@
 import { describe, it, vi, expect } from 'vitest'
-import { effect, proxyData, computed } from './core/effect.js'
+import { effect, proxyData } from './core/effect.js'
+import { computed } from './core/computed.js'
 describe('lazy and computed', () => {
   it('lazy happy path', () => {
     const data = { foo: 1 }
@@ -13,10 +14,10 @@ describe('lazy and computed', () => {
         lazy: true,
       }
     )
-    obj.foo++   
+    obj.foo++
     expect(logSpy).toHaveBeenCalledTimes(0)
   })
-  describe('computed',()=>{
+  describe('computed', () => {
     // 能拿到计算结果、2 缓存 3 值改变重新计算
     it('返回函数，自己执行能拿到结果', () => {
       const data = { foo: 1, bar: 2 }
@@ -28,7 +29,7 @@ describe('lazy and computed', () => {
       const data = { foo: 1, bar: 2 }
       const obj = proxyData(data)
       const logSpy = vi.spyOn(console, 'log')
-      const sumRes = computed(() =>{
+      const sumRes = computed(() => {
         console.log('computed run')
         return obj.foo + obj.bar
       })
@@ -41,7 +42,7 @@ describe('lazy and computed', () => {
     it('值改变是需要重新计算', () => {
       const data = { foo: 1, bar: 2 }
       const obj = proxyData(data)
-      const sumRes = computed(() =>{
+      const sumRes = computed(() => {
         return obj.foo + obj.bar
       })
       expect(sumRes.value).toBe(3)
@@ -53,13 +54,12 @@ describe('lazy and computed', () => {
       const obj = proxyData(data)
       const logSpy = vi.spyOn(console, 'log')
       const sumRes = computed(() => obj.foo + obj.bar)
-      effect(()=>{
-        console.log(sumRes.value);
+      effect(() => {
+        console.log(sumRes.value)
       })
       expect(logSpy).toHaveBeenCalledTimes(1)
       obj.foo++
       expect(logSpy).toHaveBeenCalledTimes(2)
     })
   })
-  
 })

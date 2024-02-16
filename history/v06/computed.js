@@ -1,4 +1,4 @@
-import { effect, trigger, track } from './core/effect.js'
+import { effect, trigger, track, proxyData } from './effect.js'
 export function computed(getter) {
   // value 用来缓存上一次计算的值，
   let value
@@ -28,3 +28,12 @@ export function computed(getter) {
   }
   return obj
 }
+
+const data = { foo: 1, bar: 2 }
+const obj = proxyData(data)
+const sumRes = computed(() => {
+  return obj.foo + obj.bar
+})
+console.log('sumRes   ' + sumRes.value)
+obj.foo++
+console.log('sumRes   ' + sumRes.value)
